@@ -18,18 +18,23 @@ def main():
 
     # Scan 'Downloads' folder for torrent files.
     # Store them in lstTorrentFiles[(path, file)]
-    lstTorrentFiles = []
+    # dictTorrentFiles = {'torrentFileName': {'filePath':path, 'fileName':name}}
+    dictTorrentFiles = {}
     reTorrentFile = re.compile('.+\.torrent')
     for root, dirs, files in os.walk('C:/Users/test/Downloads'):
         for file in files:
             if reTorrentFile.match(file):
-                lstTorrentFiles.append((root, file))
+                dictTorrentFiles[file] = {}
+                dictTorrentFiles[file]['filePath'] = root
+                dictTorrentFiles[file]['fileName'] = file
 
 
     # Add some comments to check github
     # Loop through list of torrent files and extracts where it stores local files
-    for file in lstTorrentFiles:
-        filePath, fileName = file
+    # add result to
+    # dictTorrentFiles = {'torrentFileName': {'localFiles': file/dir}}
+    for file in dictTorrentFiles.keys():
+        filePath, fileName = dictTorrentFiles[file]['filePath'], dictTorrentFiles[file]['fileName']
 
         # open file with buffer for byte search
         with open(f"{filePath}\{fileName}", buffering=5) as readFile:
@@ -44,7 +49,11 @@ def main():
             nameLength = int(reNameD.group(1))
 
             currentPos += reNameD.span()[1]
-            print(f"file:\t\t\t{fileName}\nname {nameLength}:\t\t{torrentHeader[currentPos:currentPos+nameLength].decode('UTF-8')}\n\n")
+            dictTorrentFiles[file]['localFiles'] = torrentHeader[currentPos:currentPos+nameLength].decode('UTF-8')
+
+    # To check
+    for key in dictTorrentFiles.keys():
+        print(f"torrent:\t\t{dictTorrentFiles[key]['fileName']}\nfiles:\t\t\t{dictTorrentFiles[key]['localFiles']}\n")
 
     # # Single file torrent - infod6:length (==6)
     # # Multi files torrent - infod5:files (==5)
