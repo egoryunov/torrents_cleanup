@@ -15,6 +15,10 @@ def main():
 
     fileTest = "C:/Users/test/Downloads/Форсаж The Fast and the Furious (Роб Коэн Rob Cohen) [2001, США, боевик, триллер, криминал, WEB-DLRip-AVC] [Open Matte] Dub + [rutracker-5433397].torrent"
 
+    #
+    # TEST PUSH
+    #
+
 
     # Scan 'Downloads' folder for torrent files.
     # Store them in lstTorrentFiles[(path, file)]
