@@ -26,6 +26,8 @@ def main():
                 lstTorrentFiles.append((root, file))
 
 
+    # Add some comments to check github
+    # Loop through list of torrent files and extracts where it stores local files
     for file in lstTorrentFiles:
         filePath, fileName = file
 
@@ -71,9 +73,6 @@ def main():
     #         dictTorrent = {}
     #         if reBencodingSting.match(torrentHeader[i+1::]): keyMatch = int(reBencodingSting.match(torrentHeader[i+1::]).group()[0])
     #         print(keyMatch)
-
-
-
 
     finishTimer = time.perf_counter()
     print(f"Finished in {round(finishTimer-startTimer, 2)} second(s)")
