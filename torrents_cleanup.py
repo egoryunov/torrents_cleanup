@@ -15,12 +15,6 @@ def main():
 
     fileTest = "C:/Users/test/Downloads/Форсаж The Fast and the Furious (Роб Коэн Rob Cohen) [2001, США, боевик, триллер, криминал, WEB-DLRip-AVC] [Open Matte] Dub + [rutracker-5433397].torrent"
 
-    #
-    # TEST PUSH
-    # TEST PUSH 2
-    #
-
-
     # Scan 'Downloads' folder for torrent files.
     # Store them in lstTorrentFiles[(path, file)]
     # dictTorrentFiles = {'torrentFileName': {'filePath':path, 'fileName':name}}
@@ -33,11 +27,12 @@ def main():
                 dictTorrentFiles[file]['filePath'] = root
                 dictTorrentFiles[file]['fileName'] = file
 
-
     # Add some comments to check github
     # Loop through list of torrent files and extracts where it stores local files
     # add result to
     # dictTorrentFiles = {'torrentFileName': {'localFiles': file/dir}}
+    # and
+    # dictTorrentFiles = {'torrentFileName': {'singleFiles': true/false}}
     for file in dictTorrentFiles.keys():
         filePath, fileName = dictTorrentFiles[file]['filePath'], dictTorrentFiles[file]['fileName']
 
@@ -48,7 +43,11 @@ def main():
 
             # RegExp should be with rb"mask" for byte search
             reInfoD = re.search(rb"infod(\d+):", torrentHeader)
+            # Single file torrent - infod6:length (==6)
+            # Multi files torrent - infod5:files (==5)
+            dictTorrentFiles[file]['singleFile'] = reInfoD.group(1).decode('UTF-8') == "6"
 
+            # Looking for a name in torrent file
             currentPos = reInfoD.span()[1]
             reNameD = re.search(rb"4:name(\d+):", torrentHeader[currentPos::])
             nameLength = int(reNameD.group(1))
@@ -58,35 +57,9 @@ def main():
 
     # To check
     for key in dictTorrentFiles.keys():
-        print(f"torrent:\t\t{dictTorrentFiles[key]['fileName']}\nfiles:\t\t\t{dictTorrentFiles[key]['localFiles']}\n")
+        print(f"torrent:\t\t{dictTorrentFiles[key]['fileName']}\nfiles:\t\t\t{dictTorrentFiles[key]['localFiles']}")
+        print(f"single?:\t\t{dictTorrentFiles[key]['singleFile']}\n")
 
-    # # Single file torrent - infod6:length (==6)
-    # # Multi files torrent - infod5:files (==5)
-    # boolSingleFile = reInfoD.group(1) == "6"
-    # print(boolSingleFile)
-    #
-    # currentPos = reInfoD.span()[1]
-    # # if it's a single file torrent
-    # if boolSingleFile:
-    #     reNameD = re.search(r"4:name(\d+):", torrentHeader[currentPos::])
-    #     nameLength = int(reNameD.group(1))
-    #     currentPos += reNameD.span()[1]
-    #     print(torrentHeader[currentPos:currentPos+nameLength])
-    # # if it's a multi files torrent
-    # else:
-    #     reNameD = re.search(r"4:name(\d+):", torrentHeader[currentPos::])
-    #     nameLength = int(reNameD.group(1))
-    #     currentPos += reNameD.span()[1]
-    #     print(torrentHeader[currentPos:currentPos+nameLength])
-
-
-    # reBencodingSting = re.compile('(\d+):')
-    # for i in range(0, len(torrentHeader)):
-    #     char = torrentHeader[i]
-    #     if char == 'd':
-    #         dictTorrent = {}
-    #         if reBencodingSting.match(torrentHeader[i+1::]): keyMatch = int(reBencodingSting.match(torrentHeader[i+1::]).group()[0])
-    #         print(keyMatch)
 
     finishTimer = time.perf_counter()
     print(f"Finished in {round(finishTimer-startTimer, 2)} second(s)")
