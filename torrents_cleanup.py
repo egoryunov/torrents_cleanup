@@ -33,11 +33,11 @@ def main():
     # dictTorrentFiles = {'torrentFileName': {'localFiles': file/dir}}
     # and
     # dictTorrentFiles = {'torrentFileName': {'singleFiles': true/false}}
-    for file in dictTorrentFiles.keys():
-        filePath, fileName = dictTorrentFiles[file]['filePath'], dictTorrentFiles[file]['fileName']
+    for torrentFile in dictTorrentFiles.keys():
+        filePath, fileName = dictTorrentFiles[torrentFile]['filePath'], dictTorrentFiles[torrentFile]['fileName']
 
         # open file with buffer for byte search
-        with open(f"{filePath}\{fileName}", buffering=5) as readFile:
+        with open(f"{filePath}/{fileName}", buffering=5) as readFile:
             rawFileContent = readFile.buffer
             torrentHeader = rawFileContent.readline()
 
@@ -45,7 +45,7 @@ def main():
             reInfoD = re.search(rb"infod(\d+):", torrentHeader)
             # Single file torrent - infod6:length (==6)
             # Multi files torrent - infod5:files (==5)
-            dictTorrentFiles[file]['singleFile'] = reInfoD.group(1).decode('UTF-8') == "6"
+            dictTorrentFiles[torrentFile]['singleFile'] = reInfoD.group(1).decode('UTF-8') == "6"
 
             # Looking for a name in torrent file
             currentPos = reInfoD.span()[1]
@@ -53,18 +53,30 @@ def main():
             nameLength = int(reNameD.group(1))
 
             currentPos += reNameD.span()[1]
-            dictTorrentFiles[file]['localFiles'] = torrentHeader[currentPos:currentPos+nameLength].decode('UTF-8')
+            dictTorrentFiles[torrentFile]['localFiles'] = torrentHeader[currentPos:currentPos+nameLength].decode('UTF-8')
+
+        # Searching local directories for download files
+        # reDownloadedFile = re.compile(rf"{dictTorrentFiles[torrentFile]['localFiles']}")
+        for root, dirs, files in os.walk('E:/'):
+            if dictTorrentFiles[torrentFile]['singleFile'] == False:
+                for dir in dirs:
+                    if dictTorrentFiles[torrentFile]['localFiles']==dir:
+                        dictTorrentFiles[torrentFile]['downloadedFiles'] = root + '/' + dir
+            else:
+                for file in files:
+                    if dictTorrentFiles[torrentFile]['localFiles']==file:
+                        dictTorrentFiles[torrentFile]['downloadedFiles'] = root + '/' + file
 
     # To check
     for key in dictTorrentFiles.keys():
-        print(f"torrent:\t\t{dictTorrentFiles[key]['fileName']}\nfiles:\t\t\t{dictTorrentFiles[key]['localFiles']}")
-        print(f"single?:\t\t{dictTorrentFiles[key]['singleFile']}\n")
+        if 'downloadedFiles' in dictTorrentFiles[key]:
+            print(f"torrent:\t\t{dictTorrentFiles[key]['fileName']}\nfiles:\t\t\t{dictTorrentFiles[key]['localFiles']}")
+            print(f"download:\t\t{dictTorrentFiles[key]['downloadedFiles']}")
+            print(f"single?:\t\t{dictTorrentFiles[key]['singleFile']}\n")
 
 
     finishTimer = time.perf_counter()
     print(f"Finished in {round(finishTimer-startTimer, 2)} second(s)")
-
-
 
 if __name__ == '__main__':
     main()
