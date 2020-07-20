@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import subprocess
 
 '''
 Useful links:
@@ -11,9 +12,6 @@ RegExp for byte search: https://stackoverflow.com/questions/31019854/typeerror-c
 
 def main():
     startTimer = time.perf_counter()
-
-
-    fileTest = "C:/Users/test/Downloads/Форсаж The Fast and the Furious (Роб Коэн Rob Cohen) [2001, США, боевик, триллер, криминал, WEB-DLRip-AVC] [Open Matte] Dub + [rutracker-5433397].torrent"
 
     # Scan 'Downloads' folder for torrent files.
     # Store them in lstTorrentFiles[(path, file)]
@@ -57,7 +55,7 @@ def main():
 
         # Searching local directories for download files
         # reDownloadedFile = re.compile(rf"{dictTorrentFiles[torrentFile]['localFiles']}")
-        for root, dirs, files in os.walk('E:/'):
+        for root, dirs, files in os.walk('C:/Users/test/Downloads'):
             if dictTorrentFiles[torrentFile]['singleFile'] == False:
                 for dir in dirs:
                     if dictTorrentFiles[torrentFile]['localFiles']==dir:
@@ -67,12 +65,32 @@ def main():
                     if dictTorrentFiles[torrentFile]['localFiles']==file:
                         dictTorrentFiles[torrentFile]['downloadedFiles'] = root + '/' + file
 
-    # To check
+
+    # adding torrents to tracker and move them to proper location
     for key in dictTorrentFiles.keys():
         if 'downloadedFiles' in dictTorrentFiles[key]:
-            print(f"torrent:\t\t{dictTorrentFiles[key]['fileName']}\nfiles:\t\t\t{dictTorrentFiles[key]['localFiles']}")
-            print(f"download:\t\t{dictTorrentFiles[key]['downloadedFiles']}")
-            print(f"single?:\t\t{dictTorrentFiles[key]['singleFile']}\n")
+            ## !!! UNCOMMENT TO EXECUTE (SUBPROCESS)
+            # Add torrent file if it's downloaded
+            fileToDownload = dictTorrentFiles[key]['filePath'] + '\\' + dictTorrentFiles[key]['fileName']
+            dirToDownload = 'C:/Users/test/Downloads/'
+            cmdAddTorrent = f'C:/Users/test/AppData/Roaming/uTorrent/uTorrent.exe /DIRECTORY "{dirToDownload}" "{fileToDownload}"'
+            print(cmdAddTorrent)
+            # subprocess.Popen(cmdAddTorrent)
+            time.sleep(5)
+
+            ## !!! UNCOMMENT TO EXECUTE (SUBPROCESS)
+            # Move torrent file to flash card
+            cmdMvFile = f'MOVE "{fileToDownload}" "C:\\tmp\\"'
+            print(cmdMvFile)
+            # subprocess.run(cmdMvFile, shell=True)
+            time.sleep(5)
+
+    # To check
+    # for key in dictTorrentFiles.keys():
+    #     if 'downloadedFiles' in dictTorrentFiles[key]:
+    #         print(f"torrent:\t\t{dictTorrentFiles[key]['fileName']}\nfiles:\t\t\t{dictTorrentFiles[key]['localFiles']}")
+    #         print(f"download:\t\t{dictTorrentFiles[key]['downloadedFiles']}")
+    #         print(f"single?:\t\t{dictTorrentFiles[key]['singleFile']}\n")
 
 
     finishTimer = time.perf_counter()
